@@ -4,9 +4,12 @@ package com.example.wheatherapp.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.wheatherapp.R
+import com.example.wheatherapp.data.WeatherModel
 import com.example.wheatherapp.ui.theme.PinkLight
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -133,19 +137,19 @@ fun MainCard() {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TabLayout(){
+fun TabLayout() {
     val tabList = listOf("HOURS", "DAYS")
     val pagerState = rememberPagerState()
     val tabIndex = pagerState.currentPage
     val coroutineScope = rememberCoroutineScope()
-    Column (
+    Column(
         modifier = Modifier
             .padding(
                 start = 5.dp,
                 end = 5.dp
             )
             .clip(RoundedCornerShape(5.dp))
-            ){
+    ) {
         TabRow(
             selectedTabIndex = tabIndex,
             indicator = { pos ->
@@ -161,11 +165,11 @@ fun TabLayout(){
                 Tab(
                     selected = false,
                     onClick = {
-                              coroutineScope.launch {
-                                  pagerState.animateScrollToPage(index)
-                              }
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
                     },
-                    text={
+                    text = {
                         Text(text = text)
                     }
                 )
@@ -175,8 +179,40 @@ fun TabLayout(){
             count = tabList.size,
             state = pagerState,
             modifier = Modifier.weight(1.0f)
-        ) {index->
+        ) { index ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                itemsIndexed(
+                    listOf(
+                        WeatherModel(
+                            "London",
+                            "10:00",
+                            "25ºC",
+                            "Sunny",
+                            "//cdn.weatherapi.com/weather/64x64/day/176.png",
+                            "",
+                            "",
+                            ""
+                        ),
+                        WeatherModel(
+                                "London",
+                        "26/07/2022",
+                        "",
+                        "Sunny",
+                        "//cdn.weatherapi.com/weather/64x64/day/176.png",
+                        "26º",
+                        "12º",
+                        "xdfghxdfthxfghxdft"
+                    )
+                    )
+                ){
+                    _, item -> ListItem(item)
+                }
+
+                }
+            }
 
         }
     }
-}
+
