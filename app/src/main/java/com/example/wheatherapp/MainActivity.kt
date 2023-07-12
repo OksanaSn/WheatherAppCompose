@@ -22,6 +22,7 @@ import com.example.wheatherapp.screens.TabLayout
 import com.example.wheatherapp.ui.theme.WheatherAppTheme
 import com.android.volley.Request
 import com.example.wheatherapp.data.WeatherModel
+import com.example.wheatherapp.screens.DialogSearch
 import org.json.JSONObject
 
 const val API_KEY = "99f09e8bb77b4d029a0105010231107"
@@ -34,7 +35,28 @@ class MainActivity : ComponentActivity() {
                 val daysList = remember{
                     mutableStateOf(listOf<WeatherModel>())
                 }
-                getData("London",this, daysList)
+                val dialogState = remember{
+                    mutableStateOf(false)
+                }
+
+                val currentDay = remember{
+                    mutableStateOf(WeatherModel(
+                        "",
+                        "",
+                        "10.0",
+                        "",
+                        "",
+                        "10.0",
+                        "10.0",
+                        "",
+                    ))
+                }
+                if (dialogState.value){
+                    DialogSearch(dialogState, onSubmit = {
+                        getData(it,this, daysList, currentDay)
+                    })
+                }
+                getData("London",this, daysList, currentDay)
                 Image(
                     painter = painterResource(id = R.drawable.ic_weather),
                     contentDescription = "im1",
@@ -44,8 +66,14 @@ class MainActivity : ComponentActivity() {
                     contentScale = ContentScale.FillBounds
                 )
                 Column{
-                    MainCard()
-                    TabLayout(daysList)
+                    MainCard(currentDay, onClickSync = {
+                        getData("London",this@MainActivity, daysList, currentDay)
+                    },
+                    onClickSearch = {
+                        dialogState.value=true
+                    }
+                    )
+                    TabLayout(daysList, currentDay)
                 }
 
             }
@@ -53,7 +81,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private fun getData (city: String, context: Context,daysList: MutableState<List<WeatherModel>>){
+private fun getData (city: String, context: Context,
+                     daysList: MutableState<List<WeatherModel>>,
+                    currentDay:MutableState<WeatherModel>){
     val url = "https://api.weatherapi.com/v1/forecast.json?key=$API_KEY"+
             "&q=$city"+
             "&days="+
@@ -66,6 +96,7 @@ private fun getData (city: String, context: Context,daysList: MutableState<List<
         {
                 response ->
             val list = getWeatherByDays(response)
+            currentDay.value=list[0]
             daysList.value=list
         },
         {
